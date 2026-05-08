@@ -1,0 +1,224 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+  font-family:
+    Inter,
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    sans-serif;
+  background: #f7f4ed;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+}
+
+button,
+input,
+select {
+  font: inherit;
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible {
+  outline: 3px solid #f5b942;
+  outline-offset: 2px;
+}
+
+@layer components {
+  .panel {
+    border: 1px solid rgb(0 0 0 / 0.1);
+    background: rgb(255 255 255 / 0.92);
+    box-shadow: 0 18px 50px rgb(16 32 47 / 0.1);
+  }
+
+  .workspace {
+    border: 1px solid rgb(0 0 0 / 0.1);
+    background: rgb(255 255 255 / 0.84);
+    box-shadow: 0 18px 50px rgb(16 32 47 / 0.12);
+  }
+
+  .toolbar-link,
+  .secondary-button,
+  .primary-button,
+  .tab-button,
+  .answer-button {
+    display: inline-flex;
+    min-height: 42px;
+    align-items: center;
+    gap: 0.5rem;
+    border: 1px solid rgb(0 0 0 / 0.12);
+    padding: 0.65rem 0.9rem;
+    font-weight: 800;
+    text-decoration: none;
+    transition:
+      transform 140ms ease,
+      background 140ms ease,
+      border-color 140ms ease;
+  }
+
+  .toolbar-link,
+  .secondary-button,
+  .tab-button,
+  .answer-button {
+    background: #ffffff;
+    color: #10202f;
+  }
+
+  .toolbar-link:hover,
+  .secondary-button:hover,
+  .tab-button:hover,
+  .answer-button:hover {
+    border-color: rgb(15 118 110 / 0.5);
+    transform: translateY(-1px);
+  }
+
+  .primary-button {
+    justify-content: center;
+    border-color: #10202f;
+    background: #10202f;
+    color: #ffffff;
+  }
+
+  .tab-button {
+    justify-content: center;
+  }
+
+  .tab-button-active {
+    border-color: #0f766e;
+    background: #0f766e;
+    color: #ffffff;
+  }
+
+  .answer-button {
+    justify-content: center;
+    min-height: 58px;
+    font-size: 1.05rem;
+  }
+
+  .text-input,
+  .select {
+    min-height: 48px;
+    width: 100%;
+    border: 1px solid rgb(0 0 0 / 0.16);
+    background: #ffffff;
+    padding: 0.75rem 0.9rem;
+    color: #10202f;
+  }
+
+  .version-pill,
+  .chip,
+  .chip-good {
+    display: inline-flex;
+    min-height: 32px;
+    align-items: center;
+    border: 1px solid rgb(0 0 0 / 0.12);
+    background: #f8fafc;
+    padding: 0.35rem 0.65rem;
+    font-weight: 800;
+  }
+
+  .chip-good {
+    border-color: rgb(15 118 110 / 0.4);
+    background: #ccfbf1;
+    color: #0f766e;
+  }
+
+  .phrase-strip {
+    border-left: 4px solid #f97361;
+    background: #fff7ed;
+    padding: 1rem;
+    font-size: 1.25rem;
+    font-weight: 900;
+  }
+
+  .feedback {
+    margin-top: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    border: 1px solid rgb(0 0 0 / 0.12);
+    padding: 1rem;
+  }
+
+  .feedback-good {
+    background: #ecfdf5;
+    border-color: rgb(15 118 110 / 0.28);
+  }
+
+  .feedback-warn {
+    background: #fff7ed;
+    border-color: rgb(249 115 97 / 0.35);
+  }
+
+  .speech-panel {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    border: 1px solid rgb(0 0 0 / 0.1);
+    background: linear-gradient(135deg, #ffffff 0%, #e0f2fe 100%);
+    padding: 1.25rem;
+  }
+
+  .mic-button {
+    display: grid;
+    min-height: 72px;
+    min-width: 72px;
+    place-items: center;
+    border: 0;
+    background: #f97361;
+    color: #ffffff;
+  }
+
+  .mic-button-recording {
+    background: #dc2626;
+  }
+
+  .lesson-node {
+    display: grid;
+    grid-template-columns: 24px 1fr;
+    gap: 0.75rem;
+    align-items: center;
+    border: 1px solid rgb(0 0 0 / 0.1);
+    background: #ffffff;
+    padding: 0.85rem;
+    text-align: left;
+  }
+
+  .lesson-node-active {
+    border-color: #0f766e;
+    background: #f0fdfa;
+  }
+
+  .lesson-node:disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
+  }
+
+  .lesson-dot {
+    height: 20px;
+    width: 20px;
+    border-radius: 999px;
+  }
+}
+
+@media (min-width: 720px) {
+  .feedback {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+}

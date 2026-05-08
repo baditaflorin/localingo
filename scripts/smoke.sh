@@ -3,10 +3,10 @@ set -euo pipefail
 
 npm run build
 
-PORT="${PORT:-4173}"
+PORT="${PORT:-$(node -e "const net=require('node:net');const s=net.createServer();s.listen(0,'127.0.0.1',()=>{console.log(s.address().port);s.close();})")}"
 BASE_URL="http://127.0.0.1:${PORT}/localingo/"
 
-npx vite preview --host 127.0.0.1 --port "${PORT}" >/tmp/localingo-vite-preview.log 2>&1 &
+node scripts/static-server.mjs "${PORT}" >/tmp/localingo-static-preview.log 2>&1 &
 SERVER_PID=$!
 
 cleanup() {

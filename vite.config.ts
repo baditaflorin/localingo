@@ -1,5 +1,4 @@
 import react from '@vitejs/plugin-react';
-import { execSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { defineConfig } from 'vite';
@@ -9,19 +8,7 @@ const packageJson = JSON.parse(readFileSync(resolve(__dirname, 'package.json'), 
   version: string;
 };
 
-function gitValue(command: string, fallback: string) {
-  try {
-    return execSync(command, { stdio: ['ignore', 'pipe', 'ignore'] })
-      .toString()
-      .trim();
-  } catch {
-    return fallback;
-  }
-}
-
 const base = process.env.VITE_APP_BASE ?? '/localingo/';
-const commit = gitValue('git rev-parse --short HEAD', 'dev');
-const builtAt = new Date().toISOString();
 
 export default defineConfig({
   base,
@@ -58,8 +45,8 @@ export default defineConfig({
   ],
   define: {
     __APP_VERSION__: JSON.stringify(packageJson.version),
-    __BUILD_COMMIT__: JSON.stringify(commit),
-    __BUILT_AT__: JSON.stringify(builtAt),
+    __BUILD_COMMIT__: JSON.stringify('offline'),
+    __BUILT_AT__: JSON.stringify('static'),
     __GITHUB_REPO__: JSON.stringify(process.env.VITE_GITHUB_REPO ?? 'baditaflorin/localingo')
   },
   build: {

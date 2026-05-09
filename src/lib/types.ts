@@ -74,6 +74,13 @@ export interface Attempt {
   response: string;
 }
 
+export interface ActivityLogEntry {
+  id: string;
+  at: string;
+  kind: 'lesson' | 'review' | 'import' | 'export' | 'share' | 'settings' | 'reset' | 'analytics' | 'system';
+  message: string;
+}
+
 export interface Profile {
   name: string;
   xp: number;
@@ -86,12 +93,15 @@ export interface Profile {
 export interface Settings {
   dailyGoalXp: number;
   voiceEnabled: boolean;
+  showRomanizedHints: boolean;
+  confirmDestructiveActions: boolean;
 }
 
 export interface LocalingoState {
-  schemaVersion: 1;
+  schemaVersion: 2;
   profile: Profile;
   cards: ReviewCard[];
   attempts: Attempt[];
   settings: Settings;
+  activityLog: ActivityLogEntry[];
 }

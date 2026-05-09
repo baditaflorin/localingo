@@ -1,6 +1,18 @@
 import { expect, test } from '@playwright/test';
 
 test('loads the app and completes a lesson answer', async ({ page }) => {
+  await page.addInitScript(() => {
+    const clipboard = {
+      writeText: async (value: string) => {
+        (window as Window & { __copiedText?: string }).__copiedText = value;
+      }
+    };
+    Object.defineProperty(navigator, 'clipboard', {
+      configurable: true,
+      value: clipboard
+    });
+  });
+
   await page.route('https://api.github.com/repos/baditaflorin/localingo/commits/main', async (route) => {
     await route.fulfill({
       json: {
@@ -21,10 +33,26 @@ test('loads the app and completes a lesson answer', async ({ page }) => {
     'href',
     'https://www.paypal.com/paypalme/florinbadita'
   );
-  await expect(page.getByText(/v0\.1\.0/)).toBeVisible();
+  await expect(page.getByText(/v0\.2\.0/)).toBeVisible();
 
   await page.getByRole('button', { name: 'hola' }).click();
   await expect(page.getByText('Correct')).toBeVisible();
   await page.getByRole('button', { name: 'Next' }).click();
   await expect(page.getByPlaceholder('Starts with gra...')).toBeVisible();
+
+  await page.getByRole('tab', { name: 'Settings' }).click();
+  await page.getByLabel(/Learner name/i).fill('Florin');
+  await page.getByLabel(/Daily goal XP/i).fill('45');
+  await page.getByLabel('Voice practice').uncheck();
+  await expect(page.getByText('Settings saved')).toBeVisible();
+
+  await page.getByRole('tab', { name: 'Progress' }).click();
+  await page.getByRole('button', { name: 'Copy JSON' }).click();
+  await expect(page.getByText('Copied export')).toBeVisible();
+
+  await page.getByRole('button', { name: 'Copy share link' }).click();
+  const copiedText = await page.evaluate(
+    () => (window as Window & { __copiedText?: string }).__copiedText ?? ''
+  );
+  expect(copiedText).toContain('#share=');
 });

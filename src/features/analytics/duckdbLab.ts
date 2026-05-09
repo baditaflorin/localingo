@@ -1,6 +1,7 @@
 import duckdbWasm from '@duckdb/duckdb-wasm/dist/duckdb-mvp.wasm?url';
 import duckdbWorker from '@duckdb/duckdb-wasm/dist/duckdb-browser-mvp.worker.js?url';
 import * as duckdb from '@duckdb/duckdb-wasm';
+import { z } from 'zod';
 import type { Attempt } from '../../lib/types';
 
 export interface DuckDbSummary {
@@ -9,6 +10,12 @@ export interface DuckDbSummary {
   correct: number;
   accuracy: number;
 }
+
+const summaryRowSchema = z.object({
+  attempts: z.number(),
+  correct: z.number(),
+  accuracy: z.number()
+});
 
 export async function runDuckDbSummary(attempts: Attempt[]): Promise<DuckDbSummary> {
   const worker = new Worker(duckdbWorker);
@@ -26,7 +33,7 @@ export async function runDuckDbSummary(attempts: Attempt[]): Promise<DuckDbSumma
         ${correct}::INTEGER AS correct,
         CASE WHEN ${total} = 0 THEN 0 ELSE ${correct}::DOUBLE / ${total}::DOUBLE END AS accuracy
     `);
-    const row = result.toArray()[0] as { attempts: number; correct: number; accuracy: number };
+    const row = summaryRowSchema.parse(result.toArray()[0]);
     return {
       engine: 'duckdb-wasm',
       attempts: row.attempts,

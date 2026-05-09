@@ -1,6 +1,6 @@
 import { openDB, type DBSchema, type IDBPDatabase } from 'idb';
 import { lessons } from '../data/course';
-import type { Attempt, LocalingoState, Profile, ReviewCard, Settings } from './types';
+import type { ActivityLogEntry, Attempt, LocalingoState, Profile, ReviewCard, Settings } from './types';
 
 interface LocalingoDb extends DBSchema {
   profile: {
@@ -20,18 +20,35 @@ interface LocalingoDb extends DBSchema {
     key: string;
     value: Settings;
   };
+  activity: {
+    key: string;
+    value: ActivityLogEntry;
+    indexes: { 'by-at': string };
+  };
 }
 
 let dbPromise: Promise<IDBPDatabase<LocalingoDb>> | null = null;
 
 function getDb() {
-  dbPromise ??= openDB<LocalingoDb>('localingo', 1, {
+  dbPromise ??= openDB<LocalingoDb>('localingo', 2, {
     upgrade(db) {
-      db.createObjectStore('profile');
-      db.createObjectStore('cards', { keyPath: 'id' });
-      const attempts = db.createObjectStore('attempts', { keyPath: 'id' });
-      attempts.createIndex('by-at', 'at');
-      db.createObjectStore('settings');
+      if (!db.objectStoreNames.contains('profile')) {
+        db.createObjectStore('profile');
+      }
+      if (!db.objectStoreNames.contains('cards')) {
+        db.createObjectStore('cards', { keyPath: 'id' });
+      }
+      if (!db.objectStoreNames.contains('attempts')) {
+        const attempts = db.createObjectStore('attempts', { keyPath: 'id' });
+        attempts.createIndex('by-at', 'at');
+      }
+      if (!db.objectStoreNames.contains('settings')) {
+        db.createObjectStore('settings');
+      }
+      if (!db.objectStoreNames.contains('activity')) {
+        const activity = db.createObjectStore('activity', { keyPath: 'id' });
+        activity.createIndex('by-at', 'at');
+      }
     }
   });
   return dbPromise;
@@ -53,7 +70,7 @@ export function createInitialState(now = new Date()): LocalingoState {
   );
 
   return {
-    schemaVersion: 1,
+    schemaVersion: 2,
     profile: {
       name: 'Local learner',
       xp: 0,
@@ -66,8 +83,18 @@ export function createInitialState(now = new Date()): LocalingoState {
     attempts: [],
     settings: {
       dailyGoalXp: 30,
-      voiceEnabled: true
-    }
+      voiceEnabled: true,
+      showRomanizedHints: true,
+      confirmDestructiveActions: true
+    },
+    activityLog: [
+      {
+        id: `system-${now.getTime()}`,
+        at: now.toISOString(),
+        kind: 'system',
+        message: 'Started a fresh Localingo profile'
+      }
+    ]
   };
 }
 
@@ -80,14 +107,15 @@ export async function loadState() {
     return initial;
   }
 
-  const [cards, attempts, settings] = await Promise.all([
+  const [cards, attempts, settings, activityLog] = await Promise.all([
     db.getAll('cards'),
     db.getAllFromIndex('attempts', 'by-at'),
-    db.get('settings', 'default')
+    db.get('settings', 'default'),
+    db.getAllFromIndex('activity', 'by-at')
   ]);
 
   return {
-    schemaVersion: 1,
+    schemaVersion: 2,
     profile,
     cards,
     attempts,
@@ -95,19 +123,23 @@ export async function loadState() {
       settings ??
       ({
         dailyGoalXp: 30,
-        voiceEnabled: true
-      } satisfies Settings)
+        voiceEnabled: true,
+        showRomanizedHints: true,
+        confirmDestructiveActions: true
+      } satisfies Settings),
+    activityLog
   } satisfies LocalingoState;
 }
 
 export async function saveState(state: LocalingoState) {
   const db = await getDb();
-  const tx = db.transaction(['profile', 'cards', 'attempts', 'settings'], 'readwrite');
+  const tx = db.transaction(['profile', 'cards', 'attempts', 'settings', 'activity'], 'readwrite');
   await Promise.all([
     tx.objectStore('profile').put(state.profile, 'default'),
     tx.objectStore('settings').put(state.settings, 'default'),
     replaceStore(tx.objectStore('cards'), state.cards),
     replaceStore(tx.objectStore('attempts'), state.attempts),
+    replaceStore(tx.objectStore('activity'), state.activityLog),
     tx.done
   ]);
 }

@@ -4,6 +4,7 @@ playwright-report/
 test-results/
 docs/*.html
 docs/*.js
+docs/*.svg
 docs/*.webmanifest
 docs/assets/
 docs/version.json

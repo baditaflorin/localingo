@@ -1,7 +1,7 @@
 # localingo
 
 ![GitHub Pages](https://img.shields.io/badge/GitHub%20Pages-live-0f766e)
-![Version](https://img.shields.io/badge/version-0.1.0-f97361)
+![Version](https://img.shields.io/badge/version-0.2.0-f97361)
 ![Mode](https://img.shields.io/badge/deployment-Mode%20A%20static-f5b942)
 
 Live site:
@@ -13,7 +13,7 @@ https://github.com/baditaflorin/localingo
 Support:
 https://www.paypal.com/paypalme/florinbadita
 
-Localingo is a private, gamified language tutor with lessons, spaced repetition, speech scoring, grammar feedback, generated drills, local progress storage, and a lazy DuckDB-WASM analytics lab. It is a pure GitHub Pages app: no backend, no auth, no runtime secrets.
+Localingo is a private, gamified language tutor with lessons, spaced repetition, speech scoring, grammar feedback, generated drills, local progress storage, shareable state links, and a lazy DuckDB-WASM analytics lab. It is a pure GitHub Pages app: no backend, no auth, no runtime secrets.
 
 ![Localingo screenshot](https://raw.githubusercontent.com/baditaflorin/localingo/main/docs/screenshot.png)
 
@@ -34,7 +34,9 @@ make build
 - Local grammar feedback and deterministic n-gram embeddings.
 - Browser microphone pronunciation scoring with Web Audio.
 - Local generated drills based on due review cards.
-- Export/import of progress as JSON.
+- Download, copy, paste, drop, and share the full Localingo state.
+- Persistent settings for learner name, daily goal, speaking availability, and reset confirmation.
+- Activity log for recent state-changing actions.
 - Version and current main commit shown in the app.
 - Public GitHub and PayPal links shown in the app header.
 
@@ -71,6 +73,9 @@ docs/privacy.md
 Postmortem:
 docs/postmortem.md
 
+Phase 3 postmortem:
+docs/postmortem-phase3.md
+
 ## Commands
 
 ```bash
@@ -91,3 +96,9 @@ Live URL:
 https://baditaflorin.github.io/localingo/
 
 Rollback is a normal git revert of the publishing commit, followed by `git push`.
+
+## Limitations
+
+- Localingo moves Localingo state, not arbitrary third-party course formats.
+- Share links embed full state in the URL hash, so they are best for lightweight handoff rather than huge histories.
+- Microphone scoring depends on browser support and permission.

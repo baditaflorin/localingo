@@ -1,6 +1,6 @@
 {
   "name": "localingo",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "commitSource": "https://api.github.com/repos/baditaflorin/localingo/commits/main",
   "repository": "https://github.com/baditaflorin/localingo",
   "liveUrl": "https://baditaflorin.github.io/localingo/"

@@ -5,4 +5,4 @@ make test
 make build
 test -s docs/index.html
 grep -q "<!doctype html>" docs/index.html
-make smoke
+SKIP_BUILD=1 make smoke

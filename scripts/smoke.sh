@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-npm run build
+if [ "${SKIP_BUILD:-0}" != "1" ]; then
+  npm run build
+fi
 
 PORT="${PORT:-$(node -e "const net=require('node:net');const s=net.createServer();s.listen(0,'127.0.0.1',()=>{console.log(s.address().port);s.close();})")}"
 BASE_URL="http://127.0.0.1:${PORT}/localingo/"
@@ -11,6 +13,7 @@ SERVER_PID=$!
 
 cleanup() {
   kill "${SERVER_PID}" >/dev/null 2>&1 || true
+  wait "${SERVER_PID}" 2>/dev/null || true
 }
 trap cleanup EXIT
 

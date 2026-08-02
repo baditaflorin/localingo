@@ -149,7 +149,7 @@ export function useLocalingoApp(initialLessonId: string) {
         ? [...new Set([...current.profile.completedLessons, exercise.lessonId])]
         : current.profile.completedLessons;
       const xp = current.profile.xp + (correct ? xpPerCorrect : score >= 0.6 ? xpPerPartial : 0);
-      const lastPracticeDate = now.toISOString().slice(0, 10);
+      const lastPracticeDate = localDateKey(now);
       const streak = updateStreak(current.profile.lastPracticeDate, now, current.profile.streak);
       const cards = current.cards.map((card) =>
         card.id === exercise.cardId ? scheduleReview(card, quality, now) : card
@@ -183,7 +183,7 @@ export function useLocalingoApp(initialLessonId: string) {
             ...current.profile,
             xp: current.profile.xp + (quality >= 3 ? 6 : 0),
             streak: updateStreak(current.profile.lastPracticeDate, new Date(), current.profile.streak),
-            lastPracticeDate: new Date().toISOString().slice(0, 10)
+            lastPracticeDate: localDateKey(new Date())
           },
           cards: current.cards.map((item) => (item.id === card.id ? scheduleReview(item, quality) : item))
         },
@@ -400,13 +400,27 @@ function withActivity(
   };
 }
 
-function updateStreak(lastPracticeDate: string | null, now: Date, currentStreak: number) {
-  const today = now.toISOString().slice(0, 10);
+// Calendar-day key in the learner's local timezone (not UTC). Streaks are a
+// wall-clock, local concept: a "day" boundary should match what the learner
+// sees on their own clock, not when UTC happens to roll over. Using
+// `toISOString().slice(0, 10)` here would key days by UTC, which silently
+// mis-tracks the streak for every learner outside UTC+0 (e.g. two practice
+// sessions on genuinely different local calendar days can land on the same
+// UTC date near midnight, so the streak fails to increment).
+export function localDateKey(date: Date): string {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+export function updateStreak(lastPracticeDate: string | null, now: Date, currentStreak: number) {
+  const today = localDateKey(now);
   if (lastPracticeDate === today) return Math.max(1, currentStreak);
   if (!lastPracticeDate) return 1;
   const yesterday = new Date(now);
   yesterday.setDate(yesterday.getDate() - 1);
-  return lastPracticeDate === yesterday.toISOString().slice(0, 10) ? currentStreak + 1 : 1;
+  return lastPracticeDate === localDateKey(yesterday) ? currentStreak + 1 : 1;
 }
 
 function reviewQualityLabel(quality: ReviewQuality) {
